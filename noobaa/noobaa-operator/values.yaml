@@ -5,7 +5,7 @@ namespace: ""
 
 noobaa:
   subscription:
-    channel: stable-4.15
+    channel: stable-4.17
     installPlanApproval: Automatic
     name: mcg-operator
     source: redhat-operators
