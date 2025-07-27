@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: orchestrator-workflow-create-ocp-namespace-swt
+  namespace: openshift-gitops
+  annotations:
+    {{- include "orchestrator-workflows.argocd-syncwave" . | nindent 4 }}  
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io/foreground
+spec:
+  destination:
+    namespace: {{ .Release.Namespace }}
+    server: 'https://kubernetes.default.svc'
+  project: default
+  source:
+    repoURL: https://github.com/redhat-pe-workshop/orchestrator-workflows.git
+    path: charts/create-ocp-namespace-swt
+    targetRevision: main
+    helm:
+      values: |
+        persistence:
+          postgresql:
+            secretRef:
+              name: sonataflow-psql-postgresql
+              userKey: database-user
+              passwordKey: database-password
+            serviceRef:
+              name: sonataflow-psql-postgresql
+              port: 5432
+              databaseName: sonataflow
+              databaseSchema: create-ocp-namespace-swt
+        backstage:
+          softwareTemplateNamespaceLarge: template:default/namespace-large
+          softwareTemplateNamespaceSmall: template:default/namespace-small
+  syncPolicy:
+    automated: {}
